@@ -15,8 +15,7 @@ import { errorHandler } from "./middleware/error-handler.js";
 import studentRoutes from "./modules/foundation/students/student.routes.js";
 const app = express();
 
-const PORT =
-  Number(process.env.PORT) || 4000;
+const PORT = Number(process.env.PORT) || 4000;
 
 // app.use(
 //   cors({
@@ -50,19 +49,11 @@ app.use("/api/users", userRoleRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/permissions", permissionRoutes);
 
-app.use(
-  "/api/foundation/enquiries",
-  enquiryRoutes,
-);
-app.use(
-  "/api/foundation/students",
-  studentRoutes,
-);
+app.use("/api/foundation/enquiries", enquiryRoutes);
+app.use("/api/foundation/students", studentRoutes);
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(
-    `Platform API running on http://localhost:${PORT}`,
-  );
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Platform API running on port ${PORT}`);
 });
