@@ -53,82 +53,57 @@ export const findUserForLogin = async (
 export const findAuthenticatedUser = async (
   userId: string,
 ): Promise<AuthenticatedUser | null> => {
-  const result =
-    await query<AuthenticatedUserRow>(
-      `
-        SELECT DISTINCT
-          u.id,
-          u.email,
-          r.id AS role_id,
-          r.name AS role_name,
-          r.description AS role_description,
-          p.name AS permission_name
-        FROM users u
-        LEFT JOIN user_roles ur
-          ON ur.user_id = u.id
-        LEFT JOIN roles r
-          ON r.id = ur.role_id
-        LEFT JOIN role_permissions rp
-          ON rp.role_id = r.id
-        LEFT JOIN permissions p
-          ON p.id = rp.permission_id
-        WHERE u.id = $1
-          AND u.is_active = true
-        ORDER BY r.id, p.id;
-      `,
-      [userId],
-    );
+  const result = await query<AuthenticatedUserRow>(
+    `
+      SELECT DISTINCT
+        u.id,
+        u.email,
+        r.id AS role_id,
+        r.name AS role_name,
+        r.description AS role_description,
+        p.name AS permission_name
+      FROM users u
+      LEFT JOIN user_roles ur
+        ON ur.user_id = u.id
+      LEFT JOIN roles r
+        ON r.id = ur.role_id
+      LEFT JOIN role_permissions rp
+        ON rp.role_id = r.id
+      LEFT JOIN permissions p
+        ON p.id = rp.permission_id
+      WHERE u.id = $1
+        AND u.is_active = true;
+    `,
+    [userId],
+  );
 
   if (result.rows.length === 0) {
     return null;
   }
 
-  const rows: AuthenticatedUserRow[] =
-    result.rows as AuthenticatedUserRow[];
+  const rows = result.rows;
 
   const first = rows[0];
 
-  const roles: AuthenticatedUser["roles"] =
-    rows
-      .filter(
-        (row: AuthenticatedUserRow) =>
-          row.role_id !== null,
-      )
-      .map(
-        (row: AuthenticatedUserRow) => ({
-          id: row.role_id as string,
-          name: row.role_name as string,
-          description:
-            row.role_description,
-        }),
-      );
+  const roles: AuthenticatedUser["roles"] = rows
+    .filter((row) => row.role_id !== null)
+    .map((row) => ({
+      id: row.role_id as string,
+      name: row.role_name as string,
+      description: row.role_description,
+    }));
 
-  const uniqueRoles =
-    Array.from(
-      new Map(
-        roles.map(
-          (role) => [role.id, role],
-        ),
-      ).values(),
-    );
+  const uniqueRoles = Array.from(
+    new Map(roles.map((role) => [role.id, role])).values(),
+  );
 
-  const permissions: string[] =
-    Array.from(
-      new Set<string>(
-        rows
-          .map(
-            (
-              row: AuthenticatedUserRow,
-            ) => row.permission_name,
-          )
-          .filter(
-            (
-              permission: string | null,
-            ): permission is string =>
-              permission !== null,
-          ),
-      ),
-    );
+  const permissions: string[] = Array.from(
+    new Set(
+      rows
+        .map((row) => row.permission_name)
+        .filter((permission): permission is string => permission !== null),
+    ),
+  );
 
   return {
     id: first.id,
