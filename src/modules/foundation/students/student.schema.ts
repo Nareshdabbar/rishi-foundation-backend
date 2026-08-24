@@ -63,9 +63,12 @@ export const createStudentRegistrationSchema = z
     parentEmail: z
       .string()
       .trim()
-      .email("Please enter a valid email address.")
       .max(255, "Email address is too long.")
-      .transform((value) => value.toLowerCase())
+      .refine(
+        (value) => value === "" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+        "Please enter a valid email address.",
+      )
+      .transform((value) => (value === "" ? undefined : value.toLowerCase()))
       .optional(),
 
     state: z.string().trim().min(1, "State is required."),
