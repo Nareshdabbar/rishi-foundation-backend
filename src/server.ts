@@ -13,6 +13,7 @@ import enquiryRoutes from "./modules/foundation/enquiries/enquiry.routes.js";
 
 import { errorHandler } from "./middleware/error-handler.js";
 import studentRoutes from "./modules/foundation/students/student.routes.js";
+import cookieParser from "cookie-parser";
 const app = express();
 
 const PORT = Number(process.env.PORT) || 4000;
@@ -24,6 +25,7 @@ const PORT = Number(process.env.PORT) || 4000;
 // );
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:3001",
   "https://mekalarishifoundation.com",
   "https://www.mekalarishifoundation.com",
 ];
@@ -34,7 +36,9 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser());
 app.use(express.json());
+
 
 app.get("/health", (_req, res) => {
   res.status(200).json({

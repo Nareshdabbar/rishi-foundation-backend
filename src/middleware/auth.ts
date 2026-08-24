@@ -1,12 +1,6 @@
-import type {
-  NextFunction,
-  Request,
-  Response,
-} from "express";
+import type { NextFunction, Request, Response } from "express";
 
-import jwt, {
-  type JwtPayload,
-} from "jsonwebtoken";
+import jwt, { type JwtPayload } from "jsonwebtoken";
 
 export type AuthenticatedUser = {
   id: string;
@@ -14,18 +8,15 @@ export type AuthenticatedUser = {
   roles: string[];
 };
 
-export type AuthenticatedRequest =
-  Request & {
-    user?: AuthenticatedUser;
-  };
+export type AuthenticatedRequest = Request & {
+  user?: AuthenticatedUser;
+};
 
 const getJwtSecret = (): string => {
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
-    throw new Error(
-      "JWT_SECRET_NOT_CONFIGURED",
-    );
+    throw new Error("JWT_SECRET_NOT_CONFIGURED");
   }
 
   return secret;
@@ -37,58 +28,33 @@ export const requireAuth = (
   next: NextFunction,
 ) => {
   try {
-    const authorization =
-      req.headers.authorization;
+    const token = req.cookies?.rishi_admin_token;
 
-    if (!authorization) {
+    if (!token) {
       res.status(401).json({
         success: false,
-        message:
-          "Authentication required.",
+        message: "Authentication required.",
       });
 
       return;
     }
 
-    const [scheme, token] =
-      authorization.split(" ");
+    const decoded = jwt.verify(token, getJwtSecret());
 
-    if (
-      scheme !== "Bearer" ||
-      !token
-    ) {
+    if (typeof decoded !== "object" || decoded === null) {
       res.status(401).json({
         success: false,
-        message:
-          "Invalid authorization header.",
+        message: "Invalid authentication token.",
       });
 
       return;
     }
 
-    const decoded = jwt.verify(
-      token,
-      getJwtSecret(),
-    );
-
-    if (
-      typeof decoded !== "object" ||
-      decoded === null
-    ) {
-      res.status(401).json({
-        success: false,
-        message:
-          "Invalid authentication token.",
-      });
-
-      return;
-    }
-
-    const payload =
-      decoded as JwtPayload & {
-        userId?: unknown;
-        roles?: unknown;
-      };
+    const payload = decoded as JwtPayload & {
+      userId?: unknown;
+      email?: unknown;
+      roles?: unknown;
+    };
 
     if (
       typeof payload.userId !== "string" ||
@@ -96,26 +62,17 @@ export const requireAuth = (
     ) {
       res.status(401).json({
         success: false,
-        message:
-          "Invalid authentication token.",
+        message: "Invalid authentication token.",
       });
 
       return;
     }
 
-    const roles = Array.isArray(
-      payload.roles,
-    )
-      ? payload.roles.filter(
-          (
-            role,
-          ): role is string =>
-            typeof role === "string",
-        )
+    const roles = Array.isArray(payload.roles)
+      ? payload.roles.filter((role): role is string => typeof role === "string")
       : [];
 
-    const authenticatedRequest =
-      req as AuthenticatedRequest;
+    const authenticatedRequest = req as AuthenticatedRequest;
 
     authenticatedRequest.user = {
       id: payload.userId,
@@ -125,27 +82,19 @@ export const requireAuth = (
 
     next();
   } catch (error) {
-    if (
-      error instanceof
-      jwt.TokenExpiredError
-    ) {
+    if (error instanceof jwt.TokenExpiredError) {
       res.status(401).json({
         success: false,
-        message:
-          "Authentication token has expired.",
+        message: "Authentication token has expired.",
       });
 
       return;
     }
 
-    if (
-      error instanceof
-      jwt.JsonWebTokenError
-    ) {
+    if (error instanceof jwt.JsonWebTokenError) {
       res.status(401).json({
         success: false,
-        message:
-          "Invalid authentication token.",
+        message: "Invalid authentication token.",
       });
 
       return;
@@ -153,31 +102,23 @@ export const requireAuth = (
 
     if (
       error instanceof Error &&
-      error.message ===
-        "JWT_SECRET_NOT_CONFIGURED"
+      error.message === "JWT_SECRET_NOT_CONFIGURED"
     ) {
-      console.error(
-        "JWT_SECRET is not configured.",
-      );
+      console.error("JWT_SECRET is not configured.");
 
       res.status(500).json({
         success: false,
-        message:
-          "Authentication service is not configured.",
+        message: "Authentication service is not configured.",
       });
 
       return;
     }
 
-    console.error(
-      "Authentication middleware failed:",
-      error,
-    );
+    console.error("Authentication middleware failed:", error);
 
     res.status(500).json({
       success: false,
-      message:
-        "Authentication failed.",
+      message: "Authentication failed.",
     });
   }
 };
