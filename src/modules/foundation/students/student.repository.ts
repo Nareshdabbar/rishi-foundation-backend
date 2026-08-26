@@ -1,11 +1,15 @@
 import { query } from "../../../db/query.js";
 
-import type { StudentRegistrationRequest } from "@rishi-foundation/contracts";
+import type {
+  StudentRegistration,
+  StudentRegistrationRequest,
+} from "@rishi-foundation/contracts";
+
 
 export const createStudentRegistration = async (
   input: StudentRegistrationRequest,
-) => {
-  const result = await query(
+): Promise<StudentRegistration> => {
+  const result = await query<StudentRegistration>(
     `
       INSERT INTO foundation_student_registrations (
         registration_type,
@@ -97,8 +101,9 @@ export const createStudentRegistration = async (
   return result.rows[0];
 };
 
-export const findAllStudentRegistrations = async () => {
-  const result = await query(
+export const findAllStudentRegistrations =
+  async (): Promise<StudentRegistration[]> => {
+  const result = await query<StudentRegistration>(
     `
       SELECT
         id,
@@ -135,8 +140,10 @@ export const findAllStudentRegistrations = async () => {
   return result.rows;
 };
 
-export const findStudentRegistrationById = async (id: string) => {
-  const result = await query(
+export const findStudentRegistrationById = async (
+  id: string,
+): Promise<StudentRegistration | null> => {
+  const result = await query<StudentRegistration>(
     `
       SELECT
         id,
@@ -177,8 +184,8 @@ export const findStudentRegistrationById = async (id: string) => {
 export const updateStudentRegistration = async (
   id: string,
   input: StudentRegistrationRequest,
-) => {
-  const result = await query(
+): Promise<StudentRegistration | null> => {
+  const result = await query<StudentRegistration>(
     `
       UPDATE foundation_student_registrations
       SET
@@ -266,8 +273,10 @@ export const updateStudentRegistration = async (
   return result.rows[0] ?? null;
 };
 
-export const deleteStudentRegistration = async (id: string) => {
-  const result = await query(
+export const deleteStudentRegistration = async (
+  id: string,
+): Promise<{ id: string } | null> => {
+  const result = await query<{ id: string }>(
     `
       DELETE FROM foundation_student_registrations
       WHERE id = $1

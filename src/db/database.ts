@@ -10,6 +10,11 @@ if (!databaseUrl) {
 
 export const pool = new Pool({
   connectionString: databaseUrl,
-  min: 1,
   max: 10,
+  idleTimeoutMillis: 30_000,
+  connectionTimeoutMillis: 10_000,
+});
+
+pool.on("error", (error) => {
+  console.error("[DB POOL ERROR]", error);
 });

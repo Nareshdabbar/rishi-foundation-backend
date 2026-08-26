@@ -84,7 +84,7 @@ export const loginUser = async (
     payload,
     getJwtSecret(),
     {
-      expiresIn: "1h",
+      expiresIn: "3h",
     },
   );
 
@@ -94,18 +94,18 @@ export const loginUser = async (
   };
 };
 
-export const getCurrentUser =
-  async (userId: string) => {
-    const user =
-      await findAuthenticatedUser(
-        userId,
-      );
+export const getCurrentUser = async (
+  userId: string,
+) => {
+  const user = await findAuthenticatedUser(
+    userId,
+  );
 
-    if (!user) {
-      throw new Error(
-        "USER_NOT_FOUND",
-      );
-    }
+  if (!user) {
+    throw new Error(
+      "USER_NOT_FOUND",
+    );
+  }
 
-    return user;
-  };
+  return user;
+};

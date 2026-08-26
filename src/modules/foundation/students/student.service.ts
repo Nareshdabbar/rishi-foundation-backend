@@ -7,19 +7,26 @@ import {
   updateStudentRegistration,
 } from "./student.repository.js";
 
-import type { StudentRegistrationRequest } from "@rishi-foundation/contracts";
+import type {
+  StudentRegistration,
+  StudentRegistrationRequest,
+} from "@rishi-foundation/contracts";
 
 export const createNewStudentRegistration = async (
   input: StudentRegistrationRequest,
-) => {
+): Promise<StudentRegistration> => {
   return createStudentRegistration(input);
 };
 
-export const getAllStudentRegistrations = async () => {
+export const getAllStudentRegistrations = async (): Promise<
+  StudentRegistration[]
+> => {
   return findAllStudentRegistrations();
 };
 
-export const getStudentRegistrationById = async (id: string) => {
+export const getStudentRegistrationById = async (
+  id: string,
+): Promise<StudentRegistration> => {
   const registration = await findStudentRegistrationById(id);
 
   if (!registration) {
@@ -32,7 +39,7 @@ export const getStudentRegistrationById = async (id: string) => {
 export const updateExistingStudentRegistration = async (
   id: string,
   input: StudentRegistrationRequest,
-) => {
+): Promise<StudentRegistration> => {
   const existingRegistration = await findStudentRegistrationById(id);
 
   if (!existingRegistration) {
@@ -48,7 +55,9 @@ export const updateExistingStudentRegistration = async (
   return updatedRegistration;
 };
 
-export const deleteExistingStudentRegistration = async (id: string) => {
+export const deleteExistingStudentRegistration = async (
+  id: string,
+): Promise<{ id: string }> => {
   const registration = await deleteStudentRegistration(id);
 
   if (!registration) {
@@ -57,7 +66,6 @@ export const deleteExistingStudentRegistration = async (id: string) => {
 
   return registration;
 };
-
 
 export const getStudentRegistrationCount = async (): Promise<number> => {
   return countStudentRegistrations();
