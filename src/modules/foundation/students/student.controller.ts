@@ -1,5 +1,14 @@
 import type { Request, Response } from "express";
 
+import type {
+  StudentRegistrationResponse,
+  StudentRegistrationListResponse,
+  StudentRegistrationDetailResponse,
+  UpdateStudentRegistrationResponse,
+  DeleteStudentRegistrationResponse,
+  StudentRegistrationCountResponse,
+} from "@rishi-foundation/contracts";
+
 import {
   createStudentRegistrationSchema,
   updateStudentRegistrationSchema,
@@ -18,9 +27,10 @@ import {
  * Public website
  * POST /api/foundation/students
  */
+// 1. CREATE
 export const createStudentRegistrationController = async (
   req: Request,
-  res: Response,
+  res: Response<StudentRegistrationResponse>,
 ) => {
   try {
     const validation = createStudentRegistrationSchema.safeParse(
@@ -63,7 +73,11 @@ export const createStudentRegistrationController = async (
  * Admin
  * GET /api/foundation/students
  */
-export const getStudentRegistrations = async (_req: Request, res: Response) => {
+// 2. GET ALL
+export const getStudentRegistrations = async (
+  _req: Request,
+  res: Response<StudentRegistrationListResponse>,
+) => {
   try {
     const registrations = await getAllStudentRegistrations();
 
@@ -85,7 +99,11 @@ export const getStudentRegistrations = async (_req: Request, res: Response) => {
  * Admin
  * GET /api/foundation/students/:id
  */
-export const getStudentRegistration = async (req: Request, res: Response) => {
+// 3. GET ONE
+export const getStudentRegistration = async (
+  req: Request,
+  res: Response<StudentRegistrationDetailResponse>,
+) => {
   try {
     const { id } = req.params;
 
@@ -130,9 +148,10 @@ export const getStudentRegistration = async (req: Request, res: Response) => {
  * Admin
  * PATCH /api/foundation/students/:id
  */
+// 4. UPDATE
 export const updateStudentRegistration = async (
   req: Request,
-  res: Response,
+  res: Response<UpdateStudentRegistrationResponse>,
 ) => {
   try {
     const { id } = req.params;
@@ -199,9 +218,10 @@ export const updateStudentRegistration = async (
  * Admin
  * DELETE /api/foundation/students/:id
  */
+// 5. DELETE
 export const deleteStudentRegistration = async (
   req: Request,
-  res: Response,
+  res: Response<DeleteStudentRegistrationResponse>,
 ) => {
   try {
     const { id } = req.params;
@@ -250,9 +270,10 @@ export const deleteStudentRegistration = async (
 
 
 ////count
+// 6. COUNT
 export const getStudentRegistrationCountController = async (
   _req: Request,
-  res: Response,
+  res: Response<StudentRegistrationCountResponse>,
 ) => {
   try {
     const count = await getStudentRegistrationCount();

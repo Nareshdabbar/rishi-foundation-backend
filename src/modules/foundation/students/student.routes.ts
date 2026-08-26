@@ -23,13 +23,6 @@ const router = Router();
  */
 router.post("/", createStudentRegistrationController);
 
-
-
-
-
-
-
-
 // router.get(
 //   "/count",
 //   requireAuth,
@@ -39,10 +32,10 @@ router.post("/", createStudentRegistrationController);
 
 router.get(
   "/count",
+  // requireAuth,
+  // requirePermission("foundation.students.read"),
   getStudentRegistrationCountController,
 );
-
-
 /*
  * Admin
  *
@@ -92,8 +85,5 @@ router.delete(
   requirePermission("foundation.students.delete"),
   deleteStudentRegistration,
 );
-
-
-
 
 export default router;
